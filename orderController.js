@@ -1,27 +1,23 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Helper para formatar resposta
 const sendResponse = (res, status, data, message) => {
   res.status(status).json({ success: true, message, data });
 };
 
-// 1. Criar Pedido (Mapeamento: Input -> DB)
 exports.createOrder = async (req, res) => {
   try {
     const { numeroPedido, valorTotal, dataCriacao, items } = req.body;
 
-    // Validação básica
     if (!numeroPedido || !items || !Array.isArray(items)) {
       return res.status(400).json({ success: false, message: 'Dados inválidos. Verifique o JSON.' });
     }
 
-    // Transação: Cria o Pedido e os Itens juntos
     const order = await prisma.order.create({
       data: {
-        orderId: numeroPedido, // Mapeia 'numeroPedido' para 'orderId'
-        value: valorTotal,     // Mapeia 'valorTotal' para 'value'
-        creationDate: new Date(dataCriacao), // Mapeia 'dataCriacao'
+        orderId: numeroPedido, 
+        value: valorTotal,     
+        creationDate: new Date(dataCriacao),
         items: {
           create: items.map(item => ({
             productId: item.idItem,
@@ -30,7 +26,7 @@ exports.createOrder = async (req, res) => {
           }))
         }
       },
-      include: { items: true } // Retorna os itens criados
+      include: { items: true } 
     });
 
     sendResponse(res, 201, order, 'Pedido criado com sucesso');
@@ -40,7 +36,6 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-// 2. Obter Pedido por ID
 exports.getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -59,7 +54,6 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
-// 3. Listar Todos
 exports.listOrders = async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
@@ -71,7 +65,6 @@ exports.listOrders = async (req, res) => {
   }
 };
 
-// 4. Atualizar Pedido
 exports.updateOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -92,7 +85,6 @@ exports.updateOrder = async (req, res) => {
   }
 };
 
-// 5. Deletar Pedido
 exports.deleteOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -104,4 +96,5 @@ exports.deleteOrder = async (req, res) => {
   } catch (error) {
     res.status(404).json({ success: false, message: 'Pedido não encontrado para exclusão.' });
   }
+
 };
