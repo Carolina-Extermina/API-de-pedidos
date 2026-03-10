@@ -5,6 +5,7 @@ const sendResponse = (res, status, data, message) => {
   res.status(status).json({ success: true, message, data });
 };
 
+
 exports.createOrder = async (req, res) => {
   try {
     const { numeroPedido, valorTotal, dataCriacao, items } = req.body;
@@ -15,8 +16,8 @@ exports.createOrder = async (req, res) => {
 
     const order = await prisma.order.create({
       data: {
-        orderId: numeroPedido, 
-        value: valorTotal,     
+        orderId: numeroPedido,
+        value: valorTotal,
         creationDate: new Date(dataCriacao),
         items: {
           create: items.map(item => ({
@@ -26,7 +27,7 @@ exports.createOrder = async (req, res) => {
           }))
         }
       },
-      include: { items: true } 
+      include: { items: true }
     });
 
     sendResponse(res, 201, order, 'Pedido criado com sucesso');
@@ -96,5 +97,4 @@ exports.deleteOrder = async (req, res) => {
   } catch (error) {
     res.status(404).json({ success: false, message: 'Pedido não encontrado para exclusão.' });
   }
-
 };
